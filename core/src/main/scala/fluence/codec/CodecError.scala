@@ -15,26 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fluence.codec.pb
+package fluence.codec
 
-import com.google.protobuf.ByteString
-import fluence.codec.PureCodec
-import scodec.bits.ByteVector
+import cats.Eq
 
-import scala.language.higherKinds
+import scala.util.control.NoStackTrace
 
-object ProtobufCodecs {
+/**
+ * CodecError represents the error for encoding and decoding:
+ * it's returned in the left side of Either(T) by PureCodec transformations.
+ *
+ * @param message Error message
+ */
+case class CodecError(message: String, causedBy: Option[Throwable] = None) extends NoStackTrace {
+  override def getMessage: String = message
 
-  implicit val byteVectorByteString: PureCodec[ByteString, ByteVector] =
-    PureCodec.liftB(
-      str ⇒ ByteVector(str.toByteArray),
-      vec ⇒ ByteString.copyFrom(vec.toArray)
-    )
+  override def getCause: Throwable = causedBy getOrElse super.getCause
+}
 
-  implicit val byteArrayByteString: PureCodec[ByteString, Array[Byte]] =
-    PureCodec.liftB(
-      str ⇒ str.toByteArray,
-      arr ⇒ ByteString.copyFrom(arr)
-    )
-
+object CodecError {
+  implicit val codecErrorEq: Eq[CodecError] = Eq.fromUniversalEquals
 }

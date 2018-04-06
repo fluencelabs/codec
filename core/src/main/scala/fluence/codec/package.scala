@@ -15,26 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fluence.codec.pb
+package fluence
 
-import com.google.protobuf.ByteString
-import fluence.codec.PureCodec
-import scodec.bits.ByteVector
-
-import scala.language.higherKinds
-
-object ProtobufCodecs {
-
-  implicit val byteVectorByteString: PureCodec[ByteString, ByteVector] =
-    PureCodec.liftB(
-      str ⇒ ByteVector(str.toByteArray),
-      vec ⇒ ByteString.copyFrom(vec.toArray)
-    )
-
-  implicit val byteArrayByteString: PureCodec[ByteString, Array[Byte]] =
-    PureCodec.liftB(
-      str ⇒ str.toByteArray,
-      arr ⇒ ByteString.copyFrom(arr)
-    )
-
+package object codec {
+  type PureCodec[A, B] = PureCodec.Bijection[A, B]
 }

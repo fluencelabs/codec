@@ -15,26 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fluence.codec.pb
+package fluence.codec
 
-import com.google.protobuf.ByteString
-import fluence.codec.PureCodec
 import scodec.bits.ByteVector
 
 import scala.language.higherKinds
 
-object ProtobufCodecs {
+import scala.scalajs.js.typedarray.Uint8Array
+import scala.scalajs.js.JSConverters._
 
-  implicit val byteVectorByteString: PureCodec[ByteString, ByteVector] =
+object Uint8ArrayCodecs {
+
+  implicit val byteVectorUint8Array: PureCodec[Uint8Array, ByteVector] =
     PureCodec.liftB(
-      str ⇒ ByteVector(str.toByteArray),
-      vec ⇒ ByteString.copyFrom(vec.toArray)
+      uint8 ⇒ ByteVector(uint8.toArray.map(_.toByte)),
+      vec ⇒ new Uint8Array(vec.toArray.map(_.toShort).toJSArray)
     )
 
-  implicit val byteArrayByteString: PureCodec[ByteString, Array[Byte]] =
+  implicit val byteArrayUint8Array: PureCodec[Uint8Array, Array[Byte]] =
     PureCodec.liftB(
-      str ⇒ str.toByteArray,
-      arr ⇒ ByteString.copyFrom(arr)
+      uint8 ⇒ uint8.toArray.map(_.toByte),
+      arr ⇒ new Uint8Array(arr.toJSArray)
     )
-
 }

@@ -15,26 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fluence.codec.pb
+package fluence.codec
 
-import com.google.protobuf.ByteString
-import fluence.codec.PureCodec
-import scodec.bits.ByteVector
+import cats.laws.discipline.ArrowChoiceTests
+import cats.tests.CatsSuite
+import org.scalacheck.ScalacheckShapeless._
 
-import scala.language.higherKinds
+class PureCodecFuncLawsSpec extends CatsSuite {
 
-object ProtobufCodecs {
+  import PureCodecFuncTestInstances._
 
-  implicit val byteVectorByteString: PureCodec[ByteString, ByteVector] =
-    PureCodec.liftB(
-      str ⇒ ByteVector(str.toByteArray),
-      vec ⇒ ByteString.copyFrom(vec.toArray)
-    )
-
-  implicit val byteArrayByteString: PureCodec[ByteString, Array[Byte]] =
-    PureCodec.liftB(
-      str ⇒ str.toByteArray,
-      arr ⇒ ByteString.copyFrom(arr)
-    )
-
+  checkAll(
+    "PureCodec.Func.ArrowChoiceLaws",
+    ArrowChoiceTests[PureCodec.Func].arrowChoice[Int, String, Double, BigDecimal, Long, Short]
+  )
 }
