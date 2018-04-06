@@ -15,27 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fluence.codec
+package fluence.codec.circe
 
-/**
- * PureCodec default values.
- */
-object PureCodec extends MonadicalEitherArrow[CodecError] {
+import fluence.codec.{CodecError, PureCodec}
+import io.circe._
 
-  /**
-   * Summons an implicit codec.
-   */
-  def codec[A, B](implicit pc: PureCodec[A, B]): PureCodec[A, B] = pc
+object CirceCodecs {
 
-  /**
-   * Shortcut to build a PureCodec.Bijection with two Func's
-   */
-  def build[A, B](direct: Func[A, B], inverse: Func[B, A]): Bijection[A, B] =
-    Bijection(direct, inverse)
+  implicit def circeJsonCodec[T](encoder: Encoder[T], decoder: Decoder[T]): PureCodec[T, Json] =
+    PureCodec.liftEitherB[T, Json](
+      t ⇒ Right(encoder.apply(t)),
+      json ⇒ decoder.decodeJson(json).left.map(f ⇒ CodecError("Cannot decode json value", causedBy = Some(f)))
+    )
 
-  /**
-   * Shortcut to build a PureCodec.Bijection with two pure functions
-   */
-  def build[A, B](direct: A ⇒ B, inverse: B ⇒ A): Bijection[A, B] =
-    liftB(direct, inverse)
+  implicit val circeJsonParseCodec: PureCodec[Json, String] =
+    PureCodec.liftEitherB(
+      json ⇒ Right(json.noSpaces),
+      str ⇒ parser.parse(str).left.map(f ⇒ CodecError("Cannot parse json string", causedBy = Some(f)))
+    )
+
 }
