@@ -134,7 +134,7 @@ lazy val `codec-kryo` = project
 lazy val `codec-protobuf` = crossProject(JVMPlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(FluenceCrossType)
-  .in(file("codec/protobuf"))
+  .in(file("protobuf"))
   .settings(
     commons,
     protobuf
