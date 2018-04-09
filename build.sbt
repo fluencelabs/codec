@@ -8,18 +8,23 @@ scalacOptions in Compile ++= Seq("-Ypartial-unification", "-Xdisable-assertions"
 
 javaOptions in Test ++= Seq("-ea")
 
+skip in publish := true // Skip root project
+
 val scalaV = scalaVersion := "2.12.5"
 
 val commons = Seq(
   scalaV,
-  version                   := "0.1",
+  version                   := "0.0.1",
   fork in Test              := true,
   parallelExecution in Test := false,
   organizationName          := "Fluence Labs Limited",
   organizationHomepage      := Some(new URL("https://fluence.ai")),
   startYear                 := Some(2017),
-  licenses += ("AGPL-3.0", new URL("http://www.gnu.org/licenses/agpl-3.0.en.html")),
-  headerLicense := Some(License.AGPLv3("2017", organizationName.value))
+  licenses += ("AGPL-V3", new URL("http://www.gnu.org/licenses/agpl-3.0.en.html")),
+  headerLicense := Some(License.AGPLv3("2017", organizationName.value)),
+  bintrayOrganization := Some("fluencelabs"),
+  publishMavenStyle := true,
+  bintrayRepository := "releases"
 )
 
 commons
