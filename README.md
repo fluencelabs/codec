@@ -16,7 +16,7 @@ In this case, error is reflected in type system. It keeps things pure. We go fur
 
 This uni-direction type is called `fluence.codec.PureCodec.Func` for a fixed `CodecError` error type. Any other error type could be used by extending `fluence.codec.MonadicalEitherArrow[Error]`.
 
-Bidirection type `A <=> B` is composed from two `Func`'s and is called `Bijection`.
+Bidirection type `A <=> B` is composed from two `Func`s and is called `Bijection`.
 
 ### Lawful composition
 
@@ -35,7 +35,7 @@ Errors are handled in monad-like "fail-fast" fashion.
 
 ### Benefit from different Monads
 
-Should pure functional types conversion be lazy or eager? Should it be performed in current thread or another?
+In general, functional types conversion could be lazy or eager, be performed in current thread or another. This choice should not affect the logic of conversion, as it's pure.
 
 `PureCodec` may use any  monad to preform execution upon, retaining its nature. The most simple case is strict eager evaluation:
 
@@ -73,12 +73,61 @@ libraryDependencies ++= Seq(
 )
 ```
 
+## Example
+
+```scala
+  import cats.syntax.compose._
+import fluence.codec.PureCodec
+import fluence.codec.circe.CirceCodecs._
+import io.circe.{Decoder, Encoder, Json}
+import scodec.bits.ByteVector
+import fluence.codec.bits.BitsCodecs._
+
+  // Simple class
+  case class User(id: Int, name: String)
+
+  // Encode and decode with circe
+  implicit val encoder: Encoder[User] =
+    user ⇒ Json.obj("id" → Encoder.encodeInt(user.id), "name" → Encoder.encodeString(user.name))
+
+  implicit val decoder: Decoder[User] = cursor ⇒
+    for {
+      id ← cursor.downField("id").as[Int]
+      name ← cursor.downField("name").as[String]
+    } yield User(id, name)
+
+  // Get codec for encoder/decoder
+  implicit val userJson: PureCodec[User, Json] = circeJsonCodec(encoder, decoder)
+
+  // A trivial string to bytes codec; never use it in production!
+  implicit val stringCodec: PureCodec[String, Array[Byte]] =
+    PureCodec.liftB(_.getBytes, bs ⇒ new String(bs))
+
+  // Convert user to byte vector and vice versa
+  implicit val userJsonVec: PureCodec[User, ByteVector] =
+    PureCodec[User, Json] andThen
+      PureCodec[Json, String] andThen
+      PureCodec[String, Array[Byte]] andThen
+      PureCodec[Array[Byte], ByteVector]
+
+  // Try it with an instance
+  val user = User(234, "Hey Bob")
+
+  // unsafe() is to be used in tests only; it throws!
+  println(userJsonVec.direct.unsafe(user).toBase64)
+  
+  // eyJpZCI6MjM0LCJuYW1lIjoiSGV5IEJvYiJ9
+```
+
+For more real-world examples, see [Fluence](https://github.com/fluencelabs/fluence).
+
 ## Roadmap
 
 - `connect[A, B, C]` to compose several Funcs or Bijections
 - `sbt-tut` for docs
 - Implement more codecs
 - Enhance `Func` api with shortcuts to `EitherT` methods
+- Consider improving performance: `EitherT` [is not so fast](https://twitter.com/alexelcu/status/988031831357485056) (at least yet)
 
 ## License
 

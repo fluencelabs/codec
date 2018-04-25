@@ -30,6 +30,10 @@ val commons = Seq(
 
 commons
 
+libraryDependencies ++= Seq(
+  "org.scalatest" %% "scalatest"    % ScalatestV % Test
+)
+
 val kindProjector = addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.6")
 
 val Cats1V = "1.1.0"

@@ -22,7 +22,7 @@ import io.circe._
 
 object CirceCodecs {
 
-  implicit def circeJsonCodec[T](encoder: Encoder[T], decoder: Decoder[T]): PureCodec[T, Json] =
+  implicit def circeJsonCodec[T](implicit encoder: Encoder[T], decoder: Decoder[T]): PureCodec[T, Json] =
     PureCodec.liftEitherB[T, Json](
       t ⇒ Right(encoder.apply(t)),
       json ⇒ decoder.decodeJson(json).left.map(f ⇒ CodecError("Cannot decode json value", causedBy = Some(f)))
