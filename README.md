@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/fluencelabs/codec.svg?branch=master)](https://travis-ci.org/fluencelabs/codec)
+
 # Codec
 
 `Codec` is an opinionated library for `cats`-friendly pure (reversible) conversions between types, with possible errors represented with `Either`.
