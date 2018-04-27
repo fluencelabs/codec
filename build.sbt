@@ -22,10 +22,10 @@ val commons = Seq(
   organizationHomepage      := Some(new URL("https://fluence.one")),
   startYear                 := Some(2017),
   licenses += ("AGPL-V3", new URL("http://www.gnu.org/licenses/agpl-3.0.en.html")),
-  headerLicense := Some(License.AGPLv3("2017", organizationName.value)),
+  headerLicense       := Some(License.AGPLv3("2017", organizationName.value)),
   bintrayOrganization := Some("fluencelabs"),
-  publishMavenStyle := true,
-  bintrayRepository := "releases"
+  publishMavenStyle   := true,
+  bintrayRepository   := "releases"
 )
 
 commons
@@ -61,12 +61,12 @@ lazy val `codec-core` = crossProject(JVMPlatform, JSPlatform)
     commons,
     kindProjector,
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-core"   % Cats1V,
-      "org.typelevel" %%% "cats-laws" % Cats1V % Test,
-      "org.typelevel" %%% "cats-testkit" % Cats1V % Test,
+      "org.typelevel"              %%% "cats-core"                 % Cats1V,
+      "org.typelevel"              %%% "cats-laws"                 % Cats1V % Test,
+      "org.typelevel"              %%% "cats-testkit"              % Cats1V % Test,
       "com.github.alexarchambault" %%% "scalacheck-shapeless_1.13" % "1.1.8" % Test,
-      "org.scalacheck"  %%% "scalacheck" % ScalacheckV % Test,
-      "org.scalatest" %%% "scalatest"    % ScalatestV % Test
+      "org.scalacheck"             %%% "scalacheck"                % ScalacheckV % Test,
+      "org.scalatest"              %%% "scalatest"                 % ScalatestV % Test
     )
   )
   .jsSettings(
@@ -84,9 +84,9 @@ lazy val `codec-bits` = crossProject(JVMPlatform, JSPlatform)
   .settings(
     commons,
     libraryDependencies ++= Seq(
-      "org.scodec"    %%% "scodec-bits" % ScodecBitsV,
-      "org.scalacheck"  %%% "scalacheck" % ScalacheckV % Test,
-      "org.scalatest" %%% "scalatest"    % ScalatestV % Test
+      "org.scodec"     %%% "scodec-bits" % ScodecBitsV,
+      "org.scalacheck" %%% "scalacheck"  % ScalacheckV % Test,
+      "org.scalatest"  %%% "scalatest"   % ScalatestV % Test
     )
   )
   .jsSettings(
@@ -125,8 +125,8 @@ lazy val `codec-kryo` = project
     commons,
     libraryDependencies ++= Seq(
       chill,
-      "com.chuusai"   %% "shapeless"     % ShapelessV,
-      "org.scalatest" %% "scalatest"    % ScalatestV % Test
+      "com.chuusai"   %% "shapeless" % ShapelessV,
+      "org.scalatest" %% "scalatest" % ScalatestV % Test
     )
   )
   .dependsOn(`codec-core-jvm`)
@@ -148,4 +148,3 @@ lazy val `codec-protobuf` = crossProject(JVMPlatform, JSPlatform)
 
 lazy val `codec-protobuf-jvm` = `codec-protobuf`.jvm
 lazy val `codec-protobuf-js` = `codec-protobuf`.js
-
