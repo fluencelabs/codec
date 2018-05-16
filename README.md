@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/fluencelabs/codec.svg?branch=master)](https://travis-ci.org/fluencelabs/codec)
+[![Build Status](https://travis-ci.org/fluencelabs/codec.svg?branch=master)](https://travis-ci.org/fluencelabs/codec) [![Gitter](https://badges.gitter.im/fluencelabs/codec.svg)](https://gitter.im/fluencelabs/codec?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # Codec
 
@@ -79,11 +79,11 @@ libraryDependencies ++= Seq(
 
 ```scala
   import cats.syntax.compose._
-import fluence.codec.PureCodec
-import fluence.codec.circe.CirceCodecs._
-import io.circe.{Decoder, Encoder, Json}
-import scodec.bits.ByteVector
-import fluence.codec.bits.BitsCodecs._
+  import fluence.codec.PureCodec
+  import fluence.codec.circe.CirceCodecs._
+  import io.circe.{Decoder, Encoder, Json}
+  import scodec.bits.ByteVector
+  import fluence.codec.bits.BitsCodecs._
 
   // Simple class
   case class User(id: Int, name: String)
