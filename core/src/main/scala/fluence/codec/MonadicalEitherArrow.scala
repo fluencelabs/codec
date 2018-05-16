@@ -18,7 +18,8 @@
 package fluence.codec
 
 import cats.{Monad, MonadError, Traverse}
-import cats.arrow.{ArrowChoice, Compose}
+import cats.arrow.{ArrowChoice, Category}
+import cats.syntax.arrow._
 import cats.data.{EitherT, Kleisli}
 import cats.syntax.flatMap._
 import cats.syntax.compose._
@@ -32,6 +33,7 @@ import scala.util.Try
  * @tparam E Error type
  */
 abstract class MonadicalEitherArrow[E <: Throwable] {
+mea ⇒
 
   /**
    * Alias for error type
@@ -114,6 +116,13 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
     )
     def toCodec[F[_]](implicit F: MonadError[F, Throwable]): Codec[F, A, B] =
       Codec(direct.runF[F], inverse.runF[F])
+
+    /**
+      * Splits the input and puts it to either bijection, then merges output.
+      * It could have been achieved with `Strong` typeclass in case it doesn't extend `Profunctor`; but it does.
+      */
+    def split[A1, B1](bj: Bijection[A1, B1]): Bijection[(A,A1), (B,B1)] =
+      mea.split(this, bj)
   }
 
   /**
@@ -250,10 +259,20 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
   implicit def swap[A, B](implicit bijection: Bijection[A, B]): Bijection[B, A] = bijection.swap
 
   /**
-   * Bijection should obey ComposeLaws
+   * Bijection should obey CategoryLaws
    */
-  implicit object catsMonadicalBijectionCompose extends Compose[Bijection] {
+  implicit object catsMonadicalBijectionCategory extends Category[Bijection] {
     override def compose[A, B, C](f: Bijection[B, C], g: Bijection[A, B]): Bijection[A, C] =
       Bijection(f.direct compose g.direct, g.inverse compose f.inverse)
+
+    override def id[A]: Bijection[A, A] = identityBijection
   }
+
+  /**
+    * Splits the input and puts it to either bijection, then merges output.
+    * It could be achieved with `Strong` typeclass in case it doesn't extend `Profunctor`; but it does.
+    */
+  def split[A1, B1, A2, B2](f1: Bijection[A1, B1], f2: Bijection[A2, B2]): Bijection[(A1, A2), (B1, B2)] =
+    Bijection(f1.direct *** f2.direct, f1.inverse *** f2.inverse)
+
 }
