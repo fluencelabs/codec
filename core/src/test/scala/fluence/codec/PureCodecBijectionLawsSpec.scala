@@ -17,7 +17,7 @@
 
 package fluence.codec
 
-import cats.laws.discipline.ComposeTests
+import cats.laws.discipline.CategoryTests
 import cats.tests.CatsSuite
 import cats.Eq
 import org.scalacheck.ScalacheckShapeless._
@@ -32,7 +32,7 @@ class PureCodecBijectionLawsSpec extends CatsSuite {
     Eq.instance((x, y) ⇒ directEq.eqv(x.direct, y.direct) && inverseEq.eqv(x.inverse, y.inverse))
 
   checkAll(
-    "PureCodec.Bijection.ComposeLaws",
-    ComposeTests[PureCodec].compose[Int, String, Double, BigDecimal]
+    "PureCodec.Bijection.CategoryLaws",
+    CategoryTests[PureCodec].category[Int, String, Double, BigDecimal]
   )
 }
