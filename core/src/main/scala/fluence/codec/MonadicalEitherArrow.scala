@@ -24,7 +24,7 @@ import cats.data.{EitherT, Kleisli}
 import cats.syntax.flatMap._
 import cats.syntax.compose._
 
-import scala.language.higherKinds
+import scala.language.{existentials, higherKinds}
 import scala.util.Try
 
 /**
@@ -62,9 +62,10 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
      * Run the func on input, lifting the error into MonadError effect.
      *
      * @param input Input
-     * @param F All internal maps and composes, as well as errors, are to be executed with this Monad
+     * @param F All internal maps and composes, as well as errors, are to be executed with this MonadError.
+      *          Error type should be a supertype for this arrow's error E.
      */
-    def runF[F[_]](input: A)(implicit F: MonadError[F, Throwable]): F[B] =
+    def runF[F[_]](input: A)(implicit F: MonadError[F, EE] forSome {type EE >: E}): F[B] =
       runEither(input).flatMap(F.fromEither)
 
     /**
@@ -78,9 +79,10 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
     /**
      * Converts this Func to Kleisli, using MonadError to execute upon and to lift errors into.
      *
-     * @param F All internal maps and composes, as well as errors, are to be executed with this Monad
+     * @param F All internal maps and composes, as well as errors, are to be executed with this MonadError.
+     *           Error type should be a supertype for this arrow's error E.
      */
-    def toKleisli[F[_]](implicit F: MonadError[F, Throwable]): Kleisli[F, A, B] =
+    def toKleisli[F[_]](implicit F: MonadError[F, EE] forSome {type EE >: E}): Kleisli[F, A, B] =
       Kleisli(input ⇒ runF[F](input))
 
     /**
@@ -93,6 +95,15 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
       import cats.instances.try_._
       runF[Try](input).get
     }
+
+    /**
+      * Picks a point from the arrow, using the initial element (Unit) on the left.
+      *
+      * @param input Point to pick
+      * @return Picked point
+      */
+    def pointAt(input: A): Point[B] =
+      catsMonadicalEitherArrowChoice.lmap(this)(_ ⇒ input)
   }
 
   /**
@@ -183,6 +194,26 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
   }
 
   /**
+    * Check a condition, lifted with a Func.
+    *
+    * @param error Error to produce when condition is not met
+    * @return Func that takes boolean, checks it, and returns Unit or fails with given error
+    */
+  def cond(error: ⇒ E): Func[Boolean, Unit] =
+    liftFuncEither(Either.cond(_, (), error))
+
+  /**
+    * Lift a function which returns a Func arrow with Unit on the left side.
+    *
+    * @param f Function to lift
+    */
+  def liftFuncPoint[A, B](f: A ⇒ Point[B]): Func[A,B] =
+    new Func[A,B]{
+      override def apply[F[_] : Monad](input: A): EitherT[F, E, B] =
+        f(input).apply[F](())
+    }
+
+  /**
    * Func that does nothing with input.
    */
   implicit def identityFunc[T]: Func[T, T] = liftFunc(identity)
@@ -216,6 +247,42 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
   }
 
   /**
+    * Point type maps from Unit to a particular value of A, so it's just a lazy Func.
+    *
+    * @tparam A Output value type
+    */
+  type Point[A] = Func[Unit, A]
+
+  /**
+    * Point must obey MonadErrorLaws
+    */
+  implicit object catsMonadicalEitherPointMonad extends MonadError[Point, E] {
+    override def flatMap[A, B](fa: Point[A])(f: A ⇒ Point[B]): Point[B] =
+      new Func[Unit, B]{
+        override def apply[F[_] : Monad](input: Unit): EitherT[F, E, B] =
+          fa[F](()).flatMap(f(_).apply[F](()))
+      }
+
+    override def tailRecM[A, B](a: A)(f: A ⇒ Point[Either[A, B]]): Point[B] =
+      new Func[Unit, B]{
+        override def apply[F[_] : Monad](input: Unit): EitherT[F, E, B] =
+          Monad[EitherT[F, E, ?]].tailRecM(a)(f(_).apply[F](()))
+      }
+
+    override def raiseError[A](e: E): Point[A] =
+      liftFuncEither(_ ⇒ Left(e))
+
+    override def handleErrorWith[A](fa: Point[A])(f: E ⇒ Point[A]): Point[A] =
+      new Func[Unit, A]{
+        override def apply[F[_] : Monad](input: Unit): EitherT[F, E, A] =
+          fa[F](()).leftFlatMap(e ⇒ f(e).apply[F](()))
+      }
+
+    override def pure[A](x: A): Point[A] =
+      liftFunc(_ ⇒ x)
+  }
+
+  /**
    * Lifts pure direct and inverse functions into Bijection.
    *
    * @param direct Pure direct transformation.
@@ -236,6 +303,12 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
    */
   def liftEitherB[A, B](direct: A ⇒ Either[E, B], inverse: B ⇒ Either[E, A]): Bijection[A, B] =
     Bijection(liftFuncEither(direct), liftFuncEither(inverse))
+
+  /**
+    * Lifts point functions into Bijection.
+    */
+  def liftPointB[A,B](direct: A ⇒ Point[B], inverse: B ⇒ Point[A]): Bijection[A,B] =
+    Bijection(liftFuncPoint(direct), liftFuncPoint(inverse))
 
   /**
    * Bijection that does no transformation.
