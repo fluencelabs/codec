@@ -23,6 +23,13 @@ import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalacheck.ScalacheckShapeless._
 
 object PureCodecFuncTestInstances {
+  implicit def arbCodecError: Arbitrary[CodecError] =
+    Arbitrary(Gen.alphaLowerStr.map(CodecError(_)))
+
+  implicit def eqCodecError: Eq[CodecError] = Eq.fromUniversalEquals
+
+  implicit def cogenE: Cogen[CodecError] = Cogen.cogenString.contramap[CodecError](_.message)
+
   implicit def arbFunc[A: Arbitrary: Cogen, B: Arbitrary]: Arbitrary[PureCodec.Func[A, B]] =
     Arbitrary(
       Gen
