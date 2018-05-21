@@ -62,7 +62,8 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
      * Run the func on input, lifting the error into MonadError effect.
      *
      * @param input Input
-     * @param F All internal maps and composes, as well as errors, are to be executed with this Monad
+     * @param F All internal maps and composes, as well as errors, are to be executed with this MonadError.
+      *          Error type should be a supertype for this arrow's error E.
      */
     def runF[F[_]](input: A)(implicit F: MonadError[F, EE] forSome {type EE >: E}): F[B] =
       runEither(input).flatMap(F.fromEither)
@@ -78,7 +79,8 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
     /**
      * Converts this Func to Kleisli, using MonadError to execute upon and to lift errors into.
      *
-     * @param F All internal maps and composes, as well as errors, are to be executed with this Monad
+     * @param F All internal maps and composes, as well as errors, are to be executed with this MonadError.
+     *           Error type should be a supertype for this arrow's error E.
      */
     def toKleisli[F[_]](implicit F: MonadError[F, EE] forSome {type EE >: E}): Kleisli[F, A, B] =
       Kleisli(input ⇒ runF[F](input))
@@ -190,6 +192,15 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
     override def apply[F[_]: Monad](input: A): EitherT[F, E, B] =
       EitherT.rightT[F, E](input).subflatMap(f)
   }
+
+  /**
+    * Check a condition, lifted with a Func.
+    *
+    * @param error Error to produce when condition is not met
+    * @return Func that takes boolean, checks it, and returns Unit or fails with given error
+    */
+  def cond(error: ⇒ E): Func[Boolean, Unit] =
+    liftFuncEither(Either.cond(_, (), error))
 
   /**
     * Lift a function which returns a Func arrow with Unit on the left side.
