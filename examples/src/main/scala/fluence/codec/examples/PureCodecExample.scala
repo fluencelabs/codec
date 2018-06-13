@@ -3,9 +3,8 @@ package fluence.codec.examples
 import cats.Id
 import cats.data.EitherT
 import cats.implicits._
+import fluence.codec.PureCodec.{Bijection, Point}
 import fluence.codec.{CodecError, PureCodec}
-import fluence.codec.PureCodec.Bijection
-import fluence.codec.PureCodec.Point
 
 import scala.util.Try
 
@@ -114,6 +113,23 @@ object PureCodecExample {
       val resOption: EitherT[Option, CodecError, Int] = point[Option]()
       assert(resId.toString == "EitherT(Right(333))")
       assert(resOption.toString == "EitherT(Some(Right(333)))")
+    }
+
+
+    // Sometimes, we might want to be able to compose two codecs together. Here we define an integer to boolean
+    // codec and compose it with one of the previously defined codecs. Yes, the int-to-bool codec is not really
+    // a bijection but we can put up with that for the sake of example.
+    val int2boolCodec: Bijection[Int, Boolean] = PureCodec.build[Int, Boolean](
+      (x: Int) => x != 0,
+      (x: Boolean) => if (x) 1 else 0
+    )
+    val str2boolCodec: Bijection[String, Boolean] = str2intCodec andThen int2boolCodec
+
+    {
+      val resA: EitherT[Id, CodecError, Boolean] = str2boolCodec.direct[Id]("100")
+      val resB = str2boolCodec.inverse[Option](true)
+      assert(resA.toString == "EitherT(Right(true))")
+      assert(resB.toString == "EitherT(Some(Right(1)))")
     }
 
 
