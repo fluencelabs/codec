@@ -3,8 +3,9 @@ package fluence.codec.examples
 import cats.Id
 import cats.data.EitherT
 import cats.implicits._
-import fluence.codec.PureCodec.Bijection
 import fluence.codec.{CodecError, PureCodec}
+import fluence.codec.PureCodec.Bijection
+import fluence.codec.PureCodec.Point
 
 import scala.util.Try
 
@@ -70,7 +71,7 @@ object PureCodecExample {
     //
     // However, we can catch exceptions in this function and return an Either, which will make it pure. Now, all we
     // need to do is to lift this function into the Func context.
-    val str2intEitherCodec = PureCodec.build(
+    val str2intEitherCodec: Bijection[String, Int] = PureCodec.build(
       PureCodec.liftFuncEither((x: String) => Either.catchNonFatal(x.toInt).left.map(e => CodecError(e.getMessage))),
       PureCodec.liftFuncEither((x: Int) => Either.catchNonFatal(x.toString).left.map(e => CodecError(e.getMessage)))
     )
@@ -93,5 +94,29 @@ object PureCodecExample {
       assert(res.toString == "EitherT(Some(Left(fluence.codec.CodecError: For input string: \"bar\")))")
       assert(resMonad.toString == "Some(Left(fluence.codec.CodecError: For input string: \"bar\"))")
     }
+
+
+    // It's also totally possible to perform an inverse transformation: after all, a codec is a bijection.
+    {
+      val res: EitherT[Id, CodecError, String] = str2intCodec.inverse[Id](720)
+      val resMonad: Id[Either[CodecError, String]] = res.value
+      assert(res.toString == "EitherT(Right(720))")
+      assert(resMonad.toString == "Right(720)")
+    }
+
+
+    // It's also possible to pass the to-be-converted value first, but perform the actual transformation only
+    // later on (using different enclosing monads if desired). To achieve this, `pointAt` method which returns a
+    // lazily evaluated function can be used.
+    {
+      val point: Point[Int] = str2intCodec.direct.pointAt("333")
+      val resId: EitherT[Id, CodecError, Int] = point[Id]()
+      val resOption: EitherT[Option, CodecError, Int] = point[Option]()
+      assert(resId.toString == "EitherT(Right(333))")
+      assert(resOption.toString == "EitherT(Some(Right(333)))")
+    }
+
+
+    // TODO: describe `runF` and `toKleisli`
   }
 }
