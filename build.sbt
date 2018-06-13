@@ -148,3 +148,10 @@ lazy val `codec-protobuf` = crossProject(JVMPlatform, JSPlatform)
 
 lazy val `codec-protobuf-jvm` = `codec-protobuf`.jvm
 lazy val `codec-protobuf-js` = `codec-protobuf`.js
+
+lazy val `codec-examples` = project
+  .in(file("examples"))
+  .settings(
+    commons
+  )
+  .dependsOn(`codec-core-jvm`)
