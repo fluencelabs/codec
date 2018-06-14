@@ -208,7 +208,7 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
     * @param f Function to lift
     */
   def liftFuncPoint[A, B](f: A ⇒ Point[B]): Func[A,B] =
-    new Func[A,B]{
+    new Func[A, B]{
       override def apply[F[_] : Monad](input: A): EitherT[F, E, B] =
         f(input).apply[F](())
     }

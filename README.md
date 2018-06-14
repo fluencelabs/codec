@@ -44,7 +44,7 @@ In general, functional types conversion could be lazy or eager, be performed in 
 ```scala
 import cats.Id
 
-val resEagerSync: Either[CodecError, Array[Byte]] = intToBytes.runF[Id](33)
+val resEagerSync: Either[CodecError, Array[Byte]] = intToBytes.direct.runF[Id](33)
 
 ```
 
@@ -121,7 +121,8 @@ libraryDependencies ++= Seq(
   // eyJpZCI6MjM0LCJuYW1lIjoiSGV5IEJvYiJ9
 ```
 
-For more real-world examples, see [Fluence](https://github.com/fluencelabs/fluence).
+For synthetic examples refer to the [examples directory](examples/).  
+For the real-world examples checkout [Fluence](https://github.com/fluencelabs/fluence) main repo.
 
 ## Roadmap
 
