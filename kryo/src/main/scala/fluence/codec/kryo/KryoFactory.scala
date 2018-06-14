@@ -21,8 +21,8 @@ import com.twitter.chill.{AllScalaRegistrar, KryoBase, KryoInstantiator}
 import org.objenesis.strategy.StdInstantiatorStrategy
 
 /**
- * This Instantiator enable compulsory class registration, registers all java and scala main classes.
- * This class required for [[com.twitter.chill.KryoPool]].
+ * This Instantiator enables compulsory class registration and registers all java and scala main classes.
+ * This class is required for [[com.twitter.chill.KryoPool]].
  * @param classesToReg additional classes for registration
  * @param registrationRequired if true, an exception is thrown when an unregistered class is encountered.
  */

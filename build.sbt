@@ -152,6 +152,10 @@ lazy val `codec-protobuf-js` = `codec-protobuf`.js
 lazy val `codec-examples` = project
   .in(file("examples"))
   .settings(
-    commons
+    commons,
+    libraryDependencies ++= Seq(
+      "io.monix" %%% "monix" % "3.0.0-RC1"
+    )
   )
   .dependsOn(`codec-core-jvm`)
+  .dependsOn(`codec-kryo`)
