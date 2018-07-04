@@ -19,6 +19,7 @@ package fluence.codec.pb
 
 import com.google.protobuf.ByteString
 import fluence.codec.PureCodec
+import scalapb.{GeneratedMessage, GeneratedMessageCompanion, Message}
 
 import scala.language.higherKinds
 
@@ -30,4 +31,19 @@ object ProtobufCodecs {
       arr ⇒ ByteString.copyFrom(arr)
     )
 
+  /**
+   * Codec for converting byte array to protobuf class.
+   *
+   * @param gen Protobuf class's companion.
+   * @return New codec for converting byte array to a specific protobuf class.
+   */
+  def protobufDynamicCodec[A <: GeneratedMessage with Message[A]](
+    gen: GeneratedMessageCompanion[A]
+  ): PureCodec.Func[Array[Byte], A] = PureCodec.liftFunc[Array[Byte], A](gen.parseFrom)
+
+  /**
+   * Codec for converting protobuf class to a byte array.
+   */
+  val generatedMessageCodec: PureCodec.Func[GeneratedMessage, Array[Byte]] =
+    PureCodec.liftFunc[GeneratedMessage, Array[Byte]](_.toByteArray)
 }
