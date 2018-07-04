@@ -14,7 +14,7 @@ val scalaV = scalaVersion := "2.12.5"
 
 val commons = Seq(
   scalaV,
-  version                   := "0.0.3",
+  version                   := "0.0.4",
   fork in Test              := true,
   parallelExecution in Test := false,
   organization              := "one.fluence",

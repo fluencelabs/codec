@@ -19,3 +19,5 @@ addSbtPlugin("com.lihaoyi" % "workbench" % "0.4.0")
 libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.7.1"
 
 addSbtPlugin("org.foundweekends" % "sbt-bintray" % "0.5.4")
+
+addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "1.0.0-M11")
