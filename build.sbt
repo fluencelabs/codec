@@ -1,6 +1,6 @@
 import de.heikoseeberger.sbtheader.License
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import sbtcrossproject.crossProject
+import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 name := "codec"
 
@@ -39,8 +39,8 @@ val ShapelessV = "2.3.+"
 
 val chill = "com.twitter" %% "chill" % "0.9.3"
 
-val ScalatestV = "3.0.+"
-val ScalacheckV = "1.14.+"
+val ScalatestV = "3.0.5"
+val ScalacheckV = "1.13.5"
 
 val protobuf = Seq(
   PB.targets in Compile := Seq(
@@ -62,7 +62,6 @@ lazy val `codec-core` = crossProject(JVMPlatform, JSPlatform)
     kindProjector,
     libraryDependencies ++= Seq(
       "org.typelevel"              %%% "cats-core"                 % Cats1V,
-      "org.typelevel"              %%% "cats-laws"                 % Cats1V % Test,
       "org.typelevel"              %%% "cats-testkit"              % Cats1V % Test,
       "com.github.alexarchambault" %%% "scalacheck-shapeless_1.14" % "1.2.0-1" % Test,
       "org.scalacheck"             %%% "scalacheck"                % ScalacheckV % Test,
