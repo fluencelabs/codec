@@ -17,7 +17,6 @@
 
 package fluence.codec.kryo
 
-import cats.MonadError
 import com.twitter.chill.KryoPool
 import fluence.codec.{CodecError, PureCodec}
 import shapeless._
@@ -30,11 +29,9 @@ import scala.util.control.NonFatal
  * Wrapper for a KryoPool with a list of registered classes
  *
  * @param pool Pre-configured KryoPool
- * @param F Applicative error
  * @tparam L List of classes registered with kryo
- * @tparam F Effect
  */
-class KryoCodecs[F[_], L <: HList] private (pool: KryoPool)(implicit F: MonadError[F, Throwable]) {
+class KryoCodecs[L <: HList] private (pool: KryoPool) {
 
   /**
    * Returns a codec for any registered type
@@ -108,10 +105,10 @@ object KryoCodecs {
      * @tparam F Effect type
      * @return Configured instance of KryoCodecs
      */
-    def build[F[_]](
+    def build(
       poolSize: Int = Runtime.getRuntime.availableProcessors
-    )(implicit F: MonadError[F, Throwable]): KryoCodecs[F, L] =
-      new KryoCodecs[F, L](
+    ): KryoCodecs[L] =
+      new KryoCodecs[L](
         KryoPool.withByteArrayOutputStream(
           poolSize,
           KryoFactory(klasses, registrationRequired = true) // registrationRequired should never be needed, as codec derivation is typesafe
