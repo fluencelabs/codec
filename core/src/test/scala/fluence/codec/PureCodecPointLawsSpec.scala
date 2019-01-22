@@ -17,12 +17,13 @@
 
 package fluence.codec
 
-import cats.{Eq, Invariant}
+import cats.{Applicative, Eq, Invariant}
 import cats.data.EitherT
 import cats.syntax.functor._
 import cats.laws.discipline.{MonadErrorTests, SemigroupalTests}
 import cats.tests.CatsSuite
 import fluence.codec
+import org.scalacheck.Arbitrary
 import org.scalacheck.ScalacheckShapeless._
 
 class PureCodecPointLawsSpec extends CatsSuite {
@@ -44,6 +45,7 @@ class PureCodecPointLawsSpec extends CatsSuite {
 
   checkAll(
     "PureCodec.Point.MonadErrorLaws",
-    MonadErrorTests[PureCodec.Point, CodecError].monadError[Int, String, Double]
+    MonadErrorTests[PureCodec.Point, CodecError]
+      .monadError[Int, String, Double]
   )
 }

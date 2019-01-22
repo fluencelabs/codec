@@ -40,6 +40,8 @@ val ShapelessV = "2.3.+"
 val chill = "com.twitter" %% "chill" % "0.9.3"
 
 val ScalatestV = "3.0.5"
+
+// Note that cats-laws 1.5 are compiled against scalacheck 1.13, and scalacheck-shapeless should also not introduce the upgrade
 val ScalacheckV = "1.13.5"
 
 val protobuf = Seq(
@@ -63,7 +65,7 @@ lazy val `codec-core` = crossProject(JVMPlatform, JSPlatform)
     libraryDependencies ++= Seq(
       "org.typelevel"              %%% "cats-core"                 % Cats1V,
       "org.typelevel"              %%% "cats-testkit"              % Cats1V % Test,
-      "com.github.alexarchambault" %%% "scalacheck-shapeless_1.14" % "1.2.0-1" % Test,
+      "com.github.alexarchambault" %%% "scalacheck-shapeless_1.13" % "1.1.8" % Test,
       "org.scalacheck"             %%% "scalacheck"                % ScalacheckV % Test,
       "org.scalatest"              %%% "scalatest"                 % ScalatestV % Test
     )
