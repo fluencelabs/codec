@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/fluencelabs/codec.svg?branch=master)](https://travis-ci.org/fluencelabs/codec) [![Gitter](https://badges.gitter.im/fluencelabs/codec.svg)](https://gitter.im/fluencelabs/codec?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Build Status](https://travis-ci.org/fluencelabs/codec.svg?branch=master)](https://travis-ci.org/fluencelabs/codec)
 
 # Codec
 
