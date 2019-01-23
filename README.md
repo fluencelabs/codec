@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/fluencelabs/codec.svg?branch=master)](https://travis-ci.org/fluencelabs/codec) [![Gitter](https://badges.gitter.im/fluencelabs/codec.svg)](https://gitter.im/fluencelabs/codec?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Build Status](https://travis-ci.org/fluencelabs/codec.svg?branch=master)](https://travis-ci.org/fluencelabs/codec)
 
 # Codec
 
@@ -64,7 +64,7 @@ In case of complex algorithms, it's worthy to share codebase between platforms. 
 // Bintray repo is used so far. Migration to Maven Central is planned
 resolvers += Resolver.bintrayRepo("fluencelabs", "releases")
 
-val codecV = "0.0.1"
+val codecV = "0.0.4"
 
 libraryDependencies ++= Seq(
   "one.fluence" %%% "codec-core" % codecV, // basic types

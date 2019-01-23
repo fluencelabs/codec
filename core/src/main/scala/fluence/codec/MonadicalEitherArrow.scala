@@ -121,13 +121,6 @@ abstract class MonadicalEitherArrow[E <: Throwable] {
      */
     lazy val swap: Bijection[B, A] = Bijection(inverse, direct)
 
-    @deprecated(
-      "You should keep codec Pure until running direct or inverse on it: there's no reason to bind effect into Codec",
-      "6.4.2018"
-    )
-    def toCodec[F[_]](implicit F: MonadError[F, Throwable]): Codec[F, A, B] =
-      Codec(direct.runF[F], inverse.runF[F])
-
     /**
      * Splits the input and puts it to either bijection, then merges output.
      * It could have been achieved with `Strong` typeclass in case it doesn't extend `Profunctor`; but it does.

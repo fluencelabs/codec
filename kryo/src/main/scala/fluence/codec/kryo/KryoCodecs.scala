@@ -17,36 +17,29 @@
 
 package fluence.codec.kryo
 
-import cats.MonadError
 import com.twitter.chill.KryoPool
-import fluence.codec.{Codec, CodecError, PureCodec}
+import fluence.codec.{CodecError, PureCodec}
 import shapeless._
 
 import scala.language.higherKinds
 import scala.reflect.ClassTag
-import scala.util.Try
 import scala.util.control.NonFatal
 
 /**
  * Wrapper for a KryoPool with a list of registered classes
  *
  * @param pool Pre-configured KryoPool
- * @param F Applicative error
  * @tparam L List of classes registered with kryo
- * @tparam F Effect
  */
-class KryoCodecs[F[_], L <: HList] private (pool: KryoPool)(implicit F: MonadError[F, Throwable]) {
+class KryoCodecs[L <: HList] private (pool: KryoPool) {
 
   /**
    * Returns a codec for any registered type
    *
    * @param sel Shows the presence of type T within list L
    * @tparam T Object type
-   * @return Freshly created Codec with Kryo inside
+   * @return Freshly created PureCodec with Kryo inside
    */
-  implicit def codec[T](implicit sel: ops.hlist.Selector[L, T]): Codec[F, T, Array[Byte]] =
-    pureCodec[T].toCodec[F]
-
   implicit def pureCodec[T](implicit sel: ops.hlist.Selector[L, T]): PureCodec[T, Array[Byte]] =
     PureCodec.Bijection(
       PureCodec.liftFuncEither { input ⇒
@@ -112,10 +105,10 @@ object KryoCodecs {
      * @tparam F Effect type
      * @return Configured instance of KryoCodecs
      */
-    def build[F[_]](
+    def build(
       poolSize: Int = Runtime.getRuntime.availableProcessors
-    )(implicit F: MonadError[F, Throwable]): KryoCodecs[F, L] =
-      new KryoCodecs[F, L](
+    ): KryoCodecs[L] =
+      new KryoCodecs[L](
         KryoPool.withByteArrayOutputStream(
           poolSize,
           KryoFactory(klasses, registrationRequired = true) // registrationRequired should never be needed, as codec derivation is typesafe

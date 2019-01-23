@@ -18,6 +18,7 @@
 package fluence.codec.kryo
 
 import cats.instances.try_._
+import cats.syntax.profunctor._
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.util.Try
@@ -31,15 +32,15 @@ class KryoCodecsSpec extends WordSpec with Matchers {
     KryoCodecs()
       .add[Array[Array[Byte]]]
       .addCase(classOf[TestClass])
-      .build[Try]()
+      .build()
 
   "encode and decode" should {
     "be inverse functions" when {
       "object defined" in {
 
-        val codec = testCodecs.codec[TestClass]
+        val codec = testCodecs.pureCodec[TestClass]
 
-        val result = codec.encode(testClass).flatMap(codec.decode).get
+        val result = codec.inverse.unsafe(codec.direct.unsafe(testClass))
 
         result.str shouldBe "one"
         result.num shouldBe 2
@@ -47,8 +48,8 @@ class KryoCodecsSpec extends WordSpec with Matchers {
       }
 
       "object is null" in {
-        val codec = testCodecs.codec[TestClass]
-        val result = codec.encode(null).flatMap(codec.decode)
+        val codec = testCodecs.pureCodec[TestClass]
+        val result = codec.direct.runF[Try](null).flatMap(codec.inverse.runF[Try])
         result.isFailure shouldBe true
       }
     }
@@ -57,9 +58,8 @@ class KryoCodecsSpec extends WordSpec with Matchers {
   "encode" should {
     "not write full class name to binary representation" when {
       "class registered" in {
-        //val codec = KryoCodec[TestClass](Seq(classOf[TestClass], classOf[Array[Byte]], classOf[Array[Array[Byte]]]), registerRequired = true)
-        val codec = testCodecs.codec[TestClass]
-        val encoded = codec.encode(testClass).map(new String(_)).get
+        val codec = testCodecs.pureCodec[TestClass]
+        val encoded = codec.direct.rmap(new String(_)).unsafe(testClass)
         val reasonableMaxSize = 20 // bytes
         encoded should not contain "TestClass"
         encoded.length should be < reasonableMaxSize
