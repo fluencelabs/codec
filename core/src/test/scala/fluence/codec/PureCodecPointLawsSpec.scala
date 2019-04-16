@@ -24,6 +24,7 @@ import cats.laws.discipline.{MonadErrorTests, SemigroupalTests}
 import cats.tests.CatsSuite
 import fluence.codec
 import org.scalacheck.Arbitrary
+import org.scalacheck.Arbitrary._
 import org.scalacheck.ScalacheckShapeless._
 
 class PureCodecPointLawsSpec extends CatsSuite {

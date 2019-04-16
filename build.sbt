@@ -14,7 +14,8 @@ val scalaV = scalaVersion := "2.12.8"
 
 val commons = Seq(
   scalaV,
-  version                   := "0.0.4",
+  //crossScalaVersions := Seq(scalaVersion.value, "2.13.0-RC1"),
+  version                   := "0.0.5",
   fork in Test              := true,
   parallelExecution in Test := false,
   organization              := "one.fluence",
@@ -30,10 +31,10 @@ val commons = Seq(
 
 commons
 
-val kindProjector = addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.9")
+val kindProjector = addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.0" cross CrossVersion.binary)
 
-val Cats1V = "1.5.0"
-val ScodecBitsV = "1.1.9"
+val Cats1V = "1.6.0"
+val ScodecBitsV = "1.1.10"
 val CirceV = "0.11.1"
 val ShapelessV = "2.3.+"
 
