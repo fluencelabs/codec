@@ -22,6 +22,7 @@ import cats.syntax.compose._
 import org.scalatest.prop.Checkers
 import org.scalatest.{Matchers, WordSpec}
 import scodec.bits.ByteVector
+import BitsCodecs.Base64._
 import BitsCodecs._
 import fluence.codec.PureCodec
 
@@ -32,7 +33,7 @@ class BitsCodecsSpec extends WordSpec with Matchers with Checkers {
       val arrCodec = implicitly[PureCodec[Array[Byte], ByteVector]]
       val b64Codec = implicitly[PureCodec[ByteVector, String]]
 
-      check { (bytes: List[Byte]) ⇒
+      check { bytes: List[Byte] ⇒
         (arrCodec andThen arrCodec.swap).direct.apply[Id](bytes.toArray).value.map(_.toList).contains(bytes) &&
         (arrCodec andThen b64Codec andThen b64Codec.swap andThen arrCodec.swap).direct
           .apply[Id](bytes.toArray)

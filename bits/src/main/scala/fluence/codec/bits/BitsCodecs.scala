@@ -29,18 +29,36 @@ object BitsCodecs {
   implicit val byteArrayToVector: PureCodec[Array[Byte], ByteVector] =
     liftB(ByteVector.apply, _.toArray)
 
-  // Notice the use of default Base64 alphabet
-  implicit val base64ToVector: PureCodec[String, ByteVector] =
-    base64AlphabetToVector(Bases.Alphabets.Base64)
+  object Base64 {
+    // Notice the use of default Base64 alphabet
+    implicit val base64ToVector: PureCodec[String, ByteVector] =
+      alphabetToVector(Bases.Alphabets.Base64)
 
-  def base64AlphabetToVector(alphabet: Bases.Base64Alphabet): PureCodec[String, ByteVector] =
-    liftEitherB(
-      str ⇒
-        ByteVector
-          .fromBase64Descriptive(str, alphabet)
-          .left
-          .map(CodecError(_)),
-      vec ⇒ Right(vec.toBase64(alphabet))
-    )
+    def alphabetToVector(alphabet: Bases.Base64Alphabet): PureCodec[String, ByteVector] =
+      liftEitherB(
+        str ⇒
+          ByteVector
+            .fromBase64Descriptive(str, alphabet)
+            .left
+            .map(CodecError(_)),
+        vec ⇒ Right(vec.toBase64(alphabet))
+      )
+  }
+
+  object Base58 {
+    // Notice the use of default Base64 alphabet
+    implicit val base58ToVector: PureCodec[String, ByteVector] =
+      alphabetToVector(Bases.Alphabets.Base58)
+
+    def alphabetToVector(alphabet: Bases.Alphabet): PureCodec[String, ByteVector] =
+      liftEitherB(
+        str ⇒
+          ByteVector
+            .fromBase58Descriptive(str, alphabet)
+            .left
+            .map(CodecError(_)),
+        vec ⇒ Right(vec.toBase58(alphabet))
+      )
+  }
 
 }
