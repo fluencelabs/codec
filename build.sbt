@@ -1,6 +1,5 @@
 import de.heikoseeberger.sbtheader.License
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import sbtcrossproject.CrossPlugin.autoImport.crossProject
+import sbtcrossproject.crossProject
 
 name := "codec"
 
@@ -14,7 +13,7 @@ val scalaV = scalaVersion := "2.12.8"
 
 val commons = Seq(
   scalaV,
-  //crossScalaVersions := Seq(scalaVersion.value, "2.13.0-RC1"),
+  crossScalaVersions := Seq(scalaVersion.value, "2.13.0"),
   version                   := "0.0.5",
   fork in Test              := true,
   parallelExecution in Test := false,
@@ -31,19 +30,18 @@ val commons = Seq(
 
 commons
 
-val kindProjector = addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.0" cross CrossVersion.binary)
+val kindProjector = addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary)
 
-val Cats1V = "1.6.0"
+val Cats1V = "2.0.0-RC1"
 val ScodecBitsV = "1.1.10"
-val CirceV = "0.11.1"
+val CirceV = "0.12.0-RC2"
 val ShapelessV = "2.3.+"
 
 val chill = "com.twitter" %% "chill" % "0.9.3"
 
 val ScalatestV = "3.0.5"
 
-// Note that cats-laws 1.5 are compiled against scalacheck 1.13, and scalacheck-shapeless should also not introduce the upgrade
-val ScalacheckV = "1.13.5"
+val ScalacheckV = "1.14.0"
 
 val protobuf = Seq(
   PB.targets in Compile := Seq(
@@ -66,7 +64,7 @@ lazy val `codec-core` = crossProject(JVMPlatform, JSPlatform)
     libraryDependencies ++= Seq(
       "org.typelevel"              %%% "cats-core"                 % Cats1V,
       "org.typelevel"              %%% "cats-testkit"              % Cats1V % Test,
-      "com.github.alexarchambault" %%% "scalacheck-shapeless_1.13" % "1.1.8" % Test,
+      "com.github.alexarchambault" %%% "scalacheck-shapeless_1.13" % "1.2.3" % Test,
       "org.scalacheck"             %%% "scalacheck"                % ScalacheckV % Test,
       "org.scalatest"              %%% "scalatest"                 % ScalatestV % Test
     )

@@ -101,8 +101,6 @@ object KryoCodecs {
     /**
      * Build a new instance of KryoCodecs with the given poolSize and F effect
      * @param poolSize Kryo pool size
-     * @param F ApplicativeError for catching serialization errors
-     * @tparam F Effect type
      * @return Configured instance of KryoCodecs
      */
     def build(
